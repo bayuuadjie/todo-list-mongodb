@@ -8,15 +8,16 @@ const app = express();
 const port = 3000;
 
 app.use(express.static('public'));
+app.use(express.json());
 app.use(express.urlencoded());
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.post('/server', (req, res) => {
+app.post('/api/activities', (req, res) => {
     addActivity(req.body);
-    res.redirect('/');
+    res.status(200).json({message: 'Aktivitas berhasil ditambahkan'});
 });
 
 app.delete('/api/activities/:activity', (req, res) => {

@@ -1,5 +1,38 @@
 const taskProgress = document.getElementById('task-progress');
 const taskDone = document.getElementById('task-done');
+const activityForm = document.getElementById('activity-form');
+const buttonAdd = document.getElementById('add-activity');
+const activityField = document.getElementById('input-activity');
+const dateField = document.getElementById('input-date');
+
+activityForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const newActivity = {
+        activity: activityField.value,
+        date : dateField.value,
+    }
+
+    try {
+        const response = await fetch('/api/activities', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newActivity)
+        });
+        
+        if (response.ok){
+            alert('Berhasil menambahkan aktivitas baru')
+            activityForm.reset();
+            fetchActivities();
+        } else {
+            alert('Gagal menambahkan aktivitas baru')
+        }
+    } catch (error) {
+        console.error("Gagal menambah data ke server:" + error)
+    }
+});
 
 const hapusAktivitas = async (activity) => {
     const konfirmasi = confirm(`Apakah Anda yakin ingin menghapus aktivitas "${activity}"?`);
