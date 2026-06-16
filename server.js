@@ -2,10 +2,12 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
-const { addActivity, loadActivity, deleteActivity, updateActivity } = require('./utils/activity');
+require('dotenv').config();
+require('./utils/db');
+const Activity = require('./model/activity')
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT;
 
 app.use(express.static('public'));
 app.use(express.json());
@@ -15,26 +17,54 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.post('/api/activities', (req, res) => {
-    addActivity(req.body);
-    res.status(200).json({message: 'Aktivitas berhasil ditambahkan'});
+app.post('/api/activities', async (req, res) => {
+    try{
+        await Activity.insertOne(req.body);
+        res.status(200).json({message: 'Aktivitas berhasil ditambahkan'});
+    } catch (error) {
+        console.error('Gagal memperbarui aktivitas:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan server' });
+    }
 });
 
-app.delete('/api/activities/:activity', (req, res) => {
-    const activity = req.params.activity;
-    deleteActivity(activity);
-    res.status(200).json({ message: 'Aktivitas berhasil dihapus' });
+app.delete('/api/activities/:id', async (req, res) => {
+    try {
+        const activityId = req.params.id;
+        await Activity.deleteOne({_id: activityId});
+        res.status(200).json({ message: 'Aktivitas berhasil dihapus' });
+    } catch (error) {
+        console.error('Gagal memperbarui aktivitas:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan server' });
+    }
 });
 
-app.put('/api/activities/:activity', (req, res) => {
-    const activity = req.params.activity;
-    updateActivity(activity);
-    res.status(200).json({ message: 'Aktivitas berhasil diperbarui' });
+app.put('/api/activities/:id', async (req, res) => {
+    try{
+        const activity = await Activity.findById(req.params.id);
+
+        if (activity.status == 'progress'){
+            activity.status = 'done';
+        }else {
+            activity.status = 'progress';
+        }
+
+        await activity.save();
+
+        res.status(200).json({ message: 'Aktivitas berhasil diperbarui' });
+    } catch (error) {
+        console.error('Gagal memperbarui aktivitas:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan server' });
+    }
 });
 
-app.get('/api/activities', (req, res) => {
-    const activities = loadActivity();
-    res.json(activities);
+app.get('/api/activities', async (req, res) => {
+    try {
+        const activities = await Activity.find()
+        res.json(activities);
+    } catch (error) {
+        console.error('Gagal memperbarui aktivitas:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan server' });
+    }
 });
 
 app.use((req, res) => {
