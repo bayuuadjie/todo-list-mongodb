@@ -42,10 +42,10 @@ app.put('/api/activities/:id', async (req, res) => {
     try{
         const activity = await Activity.findById(req.params.id);
 
-        if (activity.status == 'progress'){
-            activity.status = 'done';
+        if (activity.status == true){
+            activity.status = false;
         }else {
-            activity.status = 'progress';
+            activity.status = true;
         }
 
         await activity.save();

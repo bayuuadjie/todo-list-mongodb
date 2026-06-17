@@ -11,7 +11,7 @@ activityForm.addEventListener('submit', async (e) => {
     const newActivity = {
         activity: activityField.value,
         date : dateField.value,
-        status: 'progress',
+        status: true,
     }
 
     try {
@@ -79,7 +79,7 @@ const fetchActivities = async () => {
         const activities = await response.json();
 
         activities.forEach((progress, i) => {
-            if (progress.status == 'progress'){
+            if (progress.status == true){
                     const htmlTableProgress = `
                     <tr>
                         <td class="p-4">${progress.activity}</td>
@@ -91,7 +91,7 @@ const fetchActivities = async () => {
                     </tr>
                     `
                     taskProgress.innerHTML += htmlTableProgress;
-                } else if (progress.status == 'done') {
+                } else if (progress.status == false) {
                     const htmlTableDone = ` 
                     <tr>
                         <td class="p-4">${progress.activity}</td>
